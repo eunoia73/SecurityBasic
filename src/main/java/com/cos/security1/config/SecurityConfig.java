@@ -25,7 +25,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(CsrfConfigurer::disable);
         http.authorizeHttpRequests(authorize ->
-                authorize.requestMatchers("/user/**").authenticated()
+                authorize.requestMatchers("/user/**").authenticated()  //인증만 되면 들어갈 수 있는 주소
                         .requestMatchers("/manager/**").hasAnyRole("ADMIN", "MANAGER")
                         .requestMatchers("/admin/**").hasAnyRole("ADMIN")
 
@@ -34,7 +34,9 @@ public class SecurityConfig {
 
         http.formLogin(form ->
                 form.loginPage("/loginForm")
-                        .permitAll().loginProcessingUrl("/login")
+                        .permitAll()
+                        .loginProcessingUrl("/login")
+                        .defaultSuccessUrl("/")
         );
 
         return http.build();

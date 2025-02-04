@@ -6,4 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 //CRUD함수를 JPARepository가 들고 있음.
 //@Repository라는 어노테이션 없어도 IoC 됨.
 public interface UserRepository extends JpaRepository<User, Integer> {
+    //findBy 규칙 -> Usrname 문법
+    public User findByUsername(String username); //Jpa Query Method
 }
