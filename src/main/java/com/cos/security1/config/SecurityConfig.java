@@ -13,8 +13,8 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity  // 스프링 시큐리티 필터가 스프링 필터 체인에 등록이 됨
-@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)  //secured 어노테이션 활성화, preAuthorize 어노테이션 활성화
-//@EnableMethodSecurity(securedEnabled = true) // @EnableGlobalMethodSecurity Deprecated 되어서 이거 사용!
+//@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)  //secured 어노테이션 활성화, preAuthorize 어노테이션 활성화
+@EnableMethodSecurity(securedEnabled = true) // @EnableGlobalMethodSecurity Deprecated 되어서 이거 사용!
 
 public class SecurityConfig {
 
@@ -30,19 +30,20 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(CsrfConfigurer::disable);
         http.authorizeHttpRequests(authorize ->
-                authorize.requestMatchers("/user/**").authenticated()  //인증만 되면 들어갈 수 있는 주소
-                        .requestMatchers("/manager/**").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers("/admin/**").hasAnyRole("ADMIN")
+                        authorize.requestMatchers("/user/**").authenticated()  //인증만 되면 들어갈 수 있는 주소
+                                .requestMatchers("/manager/**").hasAnyRole("ADMIN", "MANAGER")
+                                .requestMatchers("/admin/**").hasAnyRole("ADMIN")
 
-                        .anyRequest().permitAll()
-        );
-
-        http.formLogin(form ->
-                form.loginPage("/loginForm")
-                        .permitAll()
-                        .loginProcessingUrl("/login")
-                        .defaultSuccessUrl("/")
-        );
+                                .anyRequest().permitAll()
+                )
+                .formLogin(form ->
+                        form.loginPage("/loginForm")
+                                .loginProcessingUrl("/login")  // /login 주소가 호출이 되면 시큐리티가 낚아채서 대신 로그인 진행해줌
+                                .defaultSuccessUrl("/")
+                )
+                .oauth2Login(oauth2 ->
+                        oauth2.loginPage("/loginForm")  //구글 로그인 완료된 뒤 후처리 필요
+                );
 
         return http.build();
     }
