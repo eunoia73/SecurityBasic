@@ -1,12 +1,17 @@
 package com.cos.security1.controller;
 
+import com.cos.security1.auth.PrincipalDetails;
 import com.cos.security1.model.User;
 import com.cos.security1.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +26,24 @@ public class IndexController {
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    @GetMapping("/test/login")
+    public @ResponseBody String loginTest(Authentication authentication, @AuthenticationPrincipal PrincipalDetails userDetails){
+        log.info("/test/login============>");
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        log.info("authentication={}", principalDetails.getUser());
+        log.info("userDetails={}",userDetails.getUser());
+        return "세션 정보 확인하기";
+    }
+
+    @GetMapping("/test/Oauth/login")
+    public @ResponseBody String OAuthLoginTest(Authentication authentication, @AuthenticationPrincipal OAuth2User oauth){
+        log.info("/test/oauth/login============>");
+        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+        log.info("authentication={}", oAuth2User.getAttributes());
+        log.info("oauth2User={}", oauth.getAttributes());
+        return "OAuth 세션 정보 확인하기";
+    }
+
     @GetMapping({"","/"})
     public String index(){
         //머스테치 기본 폴더 src/main/resources/
@@ -29,7 +52,7 @@ public class IndexController {
     }
 
     @GetMapping("/user")
-    public @ResponseBody String user(){
+    public @ResponseBody String user(@AuthenticationPrincipal PrincipalDetails principalDetails){
         return "user";
     }
 

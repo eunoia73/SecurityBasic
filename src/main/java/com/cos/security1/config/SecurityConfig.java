@@ -1,5 +1,7 @@
 package com.cos.security1.config;
 
+import com.cos.security1.config.oauth.PrincipalOauth2UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -18,9 +20,12 @@ import org.springframework.security.web.SecurityFilterChain;
 
 public class SecurityConfig {
 
+    @Autowired
+    private PrincipalOauth2UserService principalOauth2UserService;
+
     //해당 메서드의 리턴되는 오브젝트를 IoC로 등록해준다.
     @Bean
-    public BCryptPasswordEncoder encodePwd(){
+    public BCryptPasswordEncoder encodePwd() {
         return new BCryptPasswordEncoder();
     }
 
@@ -42,7 +47,11 @@ public class SecurityConfig {
                                 .defaultSuccessUrl("/")
                 )
                 .oauth2Login(oauth2 ->
-                        oauth2.loginPage("/loginForm")  //구글 로그인 완료된 뒤 후처리 필요
+                        oauth2.loginPage("/loginForm")
+                                .userInfoEndpoint(userInfo -> userInfo
+                                        .userService(principalOauth2UserService)
+                                )
+
                 );
 
         return http.build();
@@ -50,3 +59,9 @@ public class SecurityConfig {
 
 
 }
+
+//oauth
+//1. 코드 받기(인증), 2. 엑세스 토큰(권한),
+//3. 사용자 프로필 정보를 가져오고 4. 정보를 토대로 자동으로 진행시킴
+//-> oauth client로
+// 코드X, (액세스 토큰 + 사용자 프로필 정보)O
